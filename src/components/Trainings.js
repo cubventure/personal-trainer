@@ -14,8 +14,7 @@ export default class Trainings extends Component {
   }
   
   componentDidMount(){
-    this.loadTrainings();
-    moment().format('MMMM Do YYYY, h:mm:ss a');
+    this.loadFullTrainings();
   }
 
   loadTrainings = () => {
@@ -24,6 +23,14 @@ export default class Trainings extends Component {
     .then(resData => {
       this.setState({trainings: resData.content})
     })
+  }
+
+    loadFullTrainings = () => {
+      fetch('https://customerrest.herokuapp.com/gettrainings')
+      .then(res => res.json())
+      .then(resData => {
+        this.setState({trainings: resData})
+      })
   }
 
   //Delete
@@ -49,7 +56,8 @@ export default class Trainings extends Component {
               columns: [
                 {
                   Header: "Date",
-                  accessor: "date"
+                  accessor: "date",
+                  Cell: props => <span>{moment.utc(props.value).format('DD.MM.YYYY hh:mm a')}</span>
                 },                
                 {
                   Header: "Activity",
@@ -61,12 +69,25 @@ export default class Trainings extends Component {
                   Cell: ({value}) => (value + " min")
                 },
                 {
+                  Header: "Customer",
+                  accessor: "customer.firstname"
+                },
+                {
+                  Header: "Surname",
+                  accessor: "customer.lastname"
+                },
+                {
+                  Header: "Phone",
+                  accessor: "customer.phone"
+                },
+                {
                   id: 'button',
                   sortable: false,
                   filterable: false,
                   width: 100,
-                  accessor: 'links[0].href',
-                  Cell: ({value}) => (<button className="btn btn-default btn-danger" onClick={()=>{this.deleteRow(value)}}>Delete</button>)
+                  accessor: 'id',
+                  name: 'customer',
+                  Cell: ({value}) => (<button className="btn btn-default btn-danger" onClick={()=>{this.deleteRow('https://customerrest.herokuapp.com/api/trainings/' + value)}}>Delete</button>)
                 }
               ]
             }
